@@ -1,20 +1,21 @@
-name: Auto Build Android APK
+name: Cordova Android Build
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
 
     env:
-      ANDROID_HOME: ${{ github.workspace }}/Android
-      PATH: ${{ github.workspace }}/Android/cmdline-tools/latest/bin:${{ github.workspace }}/Android/platform-tools:$PATH
+      JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
 
     steps:
+<<<<<<< HEAD
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -24,16 +25,45 @@ jobs:
           sudo apt-get install -y tar unzip wget openjdk-17-jdk git
 
       - name: Set up JDK 17
+=======
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+>>>>>>> 7e856e1 (Fix to x4)
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 11
 
+<<<<<<< HEAD
       - name: Set up Node.js
+=======
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget tar
+
+      - name: Install Android SDK command line tools
+        run: |
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Add Android tools to PATH
+        run: |
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Install Node.js
+>>>>>>> 7e856e1 (Fix to x4)
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 20
 
+<<<<<<< HEAD
       - name: Install Cordova
         run: npm install -g cordova
 
@@ -69,3 +99,22 @@ jobs:
         with:
           name: MyApp-Release-APK
           path: platforms/android/app/build/outputs/apk/release/app-release.apk
+=======
+      - name: Install Cordova globally
+        run: npm install -g cordova
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Add Android platform
+        run: cordova platform add android
+
+      - name: Build APK
+        run: cordova build android --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release-apk
+          path: platforms/android/app/build/outputs/apk/release/app-release.apk
+>>>>>>> 7e856e1 (Fix to x4)
