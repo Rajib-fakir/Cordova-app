@@ -56,13 +56,13 @@ jobs:
         run: cordova build android --release --verbose
 
       - name: Upload Debug APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4   # fixed v4
         with:
           name: MyApp-Debug-APK
           path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload Release APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4   # fixed v4
         with:
           name: MyApp-Release-APK
           path: platforms/android/app/build/outputs/apk/release/app-release.apk
