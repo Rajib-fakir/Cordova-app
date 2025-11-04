@@ -1,4 +1,4 @@
-name: Cordova Android Build
+name: Cordova Android Build (Debug, Official)
 
 on:
   push:
@@ -7,114 +7,46 @@ on:
   pull_request:
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
 
-    env:
-      JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-
     steps:
-<<<<<<< HEAD
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y tar unzip wget openjdk-17-jdk git
-
-      - name: Set up JDK 17
-=======
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up JDK 11
->>>>>>> 7e856e1 (Fix to x4)
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 11
 
-<<<<<<< HEAD
-      - name: Set up Node.js
-=======
-      - name: Install required packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip wget tar
-
-      - name: Install Android SDK command line tools
-        run: |
-          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
-          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Add Android tools to PATH
-        run: |
-          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
-          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 35
+          build-tools: 35.0.0
+          # Optional, but useful to avoid license prompt
+          components: platform-tools,platforms;android-35
 
       - name: Install Node.js
->>>>>>> 7e856e1 (Fix to x4)
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-<<<<<<< HEAD
       - name: Install Cordova
-        run: npm install -g cordova
-
-      - name: Install Android SDK & Build Tools
-        run: |
-          mkdir -p $ANDROID_HOME/cmdline-tools/latest
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools/latest
-          rm cmdline-tools.zip
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
-
-      - name: Add Android Platform (if missing)
-        run: |
-          if [ ! -d platforms/android ]; then
-            cordova platform add android
-          fi
-
-      - name: Build Debug APK
-        run: cordova build android --debug --verbose
-
-      - name: Build Release APK
-        run: cordova build android --release --verbose
-
-      - name: Upload Debug APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: MyApp-Debug-APK
-          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Upload Release APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: MyApp-Release-APK
-          path: platforms/android/app/build/outputs/apk/release/app-release.apk
-=======
-      - name: Install Cordova globally
         run: npm install -g cordova
 
       - name: Install project dependencies
         run: npm install
 
       - name: Add Android platform
-        run: cordova platform add android
+        run: cordova platform add android@11.1.0
 
-      - name: Build APK
-        run: cordova build android --release
+      - name: Build Debug APK
+        run: cordova build android --debug
 
-      - name: Upload APK
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v3
         with:
-          name: app-release-apk
-          path: platforms/android/app/build/outputs/apk/release/app-release.apk
->>>>>>> 7e856e1 (Fix to x4)
+          name: app-debug-apk
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
