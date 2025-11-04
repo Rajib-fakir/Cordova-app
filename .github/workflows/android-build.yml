@@ -15,27 +15,36 @@ jobs:
       PATH: ${{ github.workspace }}/Android/cmdline-tools/latest/bin:${{ github.workspace }}/Android/platform-tools:$PATH
 
     steps:
+      # 1️⃣ Checkout Repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2️⃣ Install required system packages
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tar unzip wget openjdk-17-jdk git
+
+      # 3️⃣ Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # 4️⃣ Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # 5️⃣ Install Cordova globally
       - name: Install Cordova
         run: npm install -g cordova
 
+      # 6️⃣ Install Android SDK & Build-tools
       - name: Install Android SDK & Build Tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip wget
           mkdir -p $ANDROID_HOME/cmdline-tools/latest
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools/latest
@@ -43,26 +52,31 @@ jobs:
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
+      # 7️⃣ Add Android Platform if missing
       - name: Add Android Platform (if missing)
         run: |
           if [ ! -d platforms/android ]; then
             cordova platform add android
           fi
 
+      # 8️⃣ Build Debug APK
       - name: Build Debug APK
         run: cordova build android --debug --verbose
 
+      # 9️⃣ Build Release APK
       - name: Build Release APK
         run: cordova build android --release --verbose
 
+      # 🔟 Upload Debug APK
       - name: Upload Debug APK Artifact
-        uses: actions/upload-artifact@v4   # fixed v4
+        uses: actions/upload-artifact@v4
         with:
           name: MyApp-Debug-APK
           path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
 
+      # 1️⃣1️⃣ Upload Release APK
       - name: Upload Release APK Artifact
-        uses: actions/upload-artifact@v4   # fixed v4
+        uses: actions/upload-artifact@v4
         with:
           name: MyApp-Release-APK
           path: platforms/android/app/build/outputs/apk/release/app-release.apk
